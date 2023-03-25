@@ -37,13 +37,11 @@ class Training:
 
     def get_distance(self) -> float:
         """Получить дистанцию в км"""
-        dist = (self.action) * self.LEN_STEP / self.M_IN_KM
-        return dist
+        return (self.action) * self.LEN_STEP / self.M_IN_KM
 
     def get_mean_speed(self) -> float:
         """Получить среднюю скорость движения."""
-        mean_speed = self.get_distance() / self.duration
-        return mean_speed
+        return self.get_distance() / self.duration
 
     def get_spent_calories(self) -> float:
         """Получить количество затраченных калорий."""
@@ -60,7 +58,6 @@ class Running(Training):
     """Тренировка: бег."""
     CONS_1 = 18
     CONS_2 = 1.79
-    TMIN = 60
 
     def get_spent_calories(self) -> float:
         var1 = (self.CONS_1 * self.get_mean_speed() + self.CONS_2)
@@ -116,12 +113,21 @@ class Swimming(Training):
 
 def read_package(workout_type: str, data: list):
     """Прочитать данные полученные от датчиков."""
-    workout = {
+    workout_types = {
         'RUN': Running,
         'WLK': SportsWalking,
         'SWM': Swimming
     }
-    return workout[workout_type](*data)
+    workout = workout_types[workout_type]
+    action, duration, weight = data[:3]
+    if workout_type == 'RUN':
+        return workout(action, duration, weight)
+    elif workout_type == 'WLK':
+        height = data[3]
+        return workout(action, duration, weight, height)
+    else:
+        length_pool, count_pool = data[3:]
+        return workout(action, duration, weight, length_pool, count_pool)
 
 
 def main(training: Training) -> None:
@@ -139,7 +145,3 @@ if __name__ == '__main__':
 
     for workout_type, data in packages:
         training = read_package(workout_type, data)
-        if training is None:
-            print('Неожиданный тип тренировки')
-        else:
-            main(training)
