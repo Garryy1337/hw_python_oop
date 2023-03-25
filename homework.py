@@ -113,21 +113,14 @@ class Swimming(Training):
 
 def read_package(workout_type: str, data: list):
     """Прочитать данные полученные от датчиков."""
-    workout_types = {
+    workout = {
         'RUN': Running,
         'WLK': SportsWalking,
         'SWM': Swimming
     }
-    workout = workout_types[workout_type]
-    action, duration, weight = data[:3]
-    if workout_type == 'RUN':
-        return workout(action, duration, weight)
-    elif workout_type == 'WLK':
-        height = data[3]
-        return workout(action, duration, weight, height)
-    else:
-        length_pool, count_pool = data[3:]
-        return workout(action, duration, weight, length_pool, count_pool)
+    if workout_type not in workout:
+        raise ValueError(f'Такой тренировки - {workout_type} не найденн')
+    return workout[workout_type](*data)
 
 
 def main(training: Training) -> None:
@@ -145,3 +138,7 @@ if __name__ == '__main__':
 
     for workout_type, data in packages:
         training = read_package(workout_type, data)
+        if training is None:
+            print('Неожиданный тип тренировки')
+        else:
+            main(training)
